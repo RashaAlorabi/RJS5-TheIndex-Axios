@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
-import authors from "./data.js";
-
+import axios from "axios";
 // Components
 import Sidebar from "./Sidebar";
 import AuthorsList from "./AuthorsList";
@@ -10,16 +9,47 @@ import AuthorDetail from "./AuthorDetail";
 class App extends Component {
   state = {
     currentAuthor: null,
-    filteredAuthors: authors
+    filteredAuthors: [],
+    authors: [],
+    loading: true
   };
-
-  selectAuthor = author => this.setState({ currentAuthor: author });
+  componentDidMount = async () => {
+    try {
+      const response = await axios.get(
+        "https://the-index-api.herokuapp.com/api/authors/"
+      );
+      const authorsList = response.data;
+      this.setState({
+        authors: authorsList,
+        filterAuthors: authorsList,
+        loading: false
+      });
+    } catch (error) {
+      console.error("Something Went wrong");
+      console.error(error);
+    }
+  };
+  selectAuthor = async author => {
+    try {
+      const response = await axios.get(
+        `https://the-index-api.herokuapp.com/api/authors/${author.id}/`
+      );
+      const authorsDetail = response.data;
+      this.setState({
+        currentAuthor: authorsDetail,
+        loading: false
+      });
+    } catch (error) {
+      console.error("Something Went wrong");
+      console.error(error);
+    }
+  };
 
   unselectAuthor = () => this.setState({ currentAuthor: null });
 
   filterAuthors = query => {
     query = query.toLowerCase();
-    let filteredAuthors = authors.filter(author => {
+    let filteredAuthors = this.state.authors.filter(author => {
       return `${author.first_name} ${author.last_name}`
         .toLowerCase()
         .includes(query);
@@ -28,12 +58,13 @@ class App extends Component {
   };
 
   getContentView = () => {
+    // let authors = this.state.authors
     if (this.state.currentAuthor) {
       return <AuthorDetail author={this.state.currentAuthor} />;
     } else {
       return (
         <AuthorsList
-          authors={this.state.filteredAuthors}
+          authors={this.state.authors}
           selectAuthor={this.selectAuthor}
           filterAuthors={this.filterAuthors}
         />
@@ -42,6 +73,7 @@ class App extends Component {
   };
 
   render() {
+    if (this.state.loading) return <div>loading ...</div>;
     return (
       <div id="app" className="container-fluid">
         <div className="row">
