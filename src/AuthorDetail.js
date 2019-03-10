@@ -6,7 +6,7 @@ class AuthorDetail extends Component {
     const author = this.props.author;
     const authorName = `${author.first_name} ${author.last_name}`;
     const books = author.books.map(book => (
-      <BookRow book={book} key={book.title} author={author} />
+      <BookRow book={book} key={book.title} />
     ));
 
     return (

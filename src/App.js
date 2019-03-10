@@ -5,6 +5,7 @@ import axios from "axios";
 import Sidebar from "./Sidebar";
 import AuthorsList from "./AuthorsList";
 import AuthorDetail from "./AuthorDetail";
+import Loading from "./Loading";
 
 class App extends Component {
   state = {
@@ -30,6 +31,7 @@ class App extends Component {
     }
   };
   selectAuthor = async author => {
+    this.setState({ loading: true });
     try {
       const response = await axios.get(
         `https://the-index-api.herokuapp.com/api/authors/${author.id}/`
@@ -59,6 +61,7 @@ class App extends Component {
 
   getContentView = () => {
     // let authors = this.state.authors
+    if (this.state.loading) return <Loading />;
     if (this.state.currentAuthor) {
       return <AuthorDetail author={this.state.currentAuthor} />;
     } else {
@@ -73,7 +76,6 @@ class App extends Component {
   };
 
   render() {
-    if (this.state.loading) return <div>loading ...</div>;
     return (
       <div id="app" className="container-fluid">
         <div className="row">
